@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.dao.OrderSettingDAO">
+
+
+<!-- Integer getCountByOrderDate(Date orderDate); -->
+ <select id="getCountByOrderDate" resultType="java.lang.Integer">
+     select count(1) from t_ordersetting where orderDate = #{orderDate}
+ </select>
+
+
+<!-- void update(OrderSetting orderSetting); -->
+    <update id="update">
+        update t_ordersetting set number = #{number} where orderDate = #{orderDate}
+    </update>
+
+
+<!-- void add(OrderSetting orderSetting); -->
+    <insert id="add">
+        insert into t_ordersetting (orderDate,number) values (#{orderDate}, #{number})
+    </insert>
+
+<!-- List<OrderSetting> getOrderSettingByMonth(String date); -->
+    <select id="getOrderSettingByMonth" resultType="com.atguigu.pojo.OrderSetting">
+        select * from t_ordersetting where orderDate like concat(#{value},'%')
+    </select>
+
+<!-- OrderSetting getOrderSettingByOrderDate(Date orderDate); -->
+    <select id="getOrderSettingByOrderDate" resultType="com.atguigu.pojo.OrderSetting">
+        select * from t_ordersetting where orderDate = #{orderDate}
+    </select>
+
+<!-- void editReservation(OrderSetting orderSetting); 更新异动单新添加的预约人数-->
+    <update id="editReservation">
+        update t_ordersetting set reservations = #{reservations}
+        where id = #{id}
+    </update>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

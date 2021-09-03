@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.dao.PermissionDAO">
+
+
+<!-- Permission getPermissionByRoleId(Integer id); -->
+    <select id="getPermissionByRoleId" resultType="com.atguigu.pojo.Permission">
+        select t_permission.*
+        from t_permission,t_role_permission
+        where t_permission.id = t_role_permission.permission_id
+          and t_role_permission.role_id = #{roleId}
+    </select>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

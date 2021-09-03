@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.dao.RoleDAO">
+
+    <resultMap id="getRoleByUserIdMap" type="com.atguigu.pojo.Role">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="keyword" property="keyword"/>
+        <collection property="permissions" select="com.atguigu.dao.PermissionDAO.getPermissionByRoleId" column="id"/>
+    </resultMap>
+
+<!-- Role getRoleByUserId(Integer userId); -->
+    <select id="getRoleByUserId" resultMap="getRoleByUserIdMap">
+        select t_role.*
+        from t_role,t_user_role
+        where t_role.id = t_user_role.role_id
+          and t_user_role.user_id = #{userId}
+    </select>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

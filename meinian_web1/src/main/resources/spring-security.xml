@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--开启方法级别的权限验证(支持注解的形式)-->
+    <security:global-method-security pre-post-annotations="enabled" />
+    <!--可以匿名访问的资源
+        security="none"没有权限(限制)  pattern="/css/**" css目录中的所有资源都没有限制(放行)
+    -->
+    <security:http security="none" pattern="/css/**"></security:http>
+    <security:http security="none" pattern="/js/**"></security:http>
+    <security:http security="none" pattern="/img/**"></security:http>
+    <security:http security="none" pattern="/plugins/**"></security:http>
+    <security:http security="none" pattern="/template/**"></security:http>
+    <!--登录页面必须匿名访问-->
+    <security:http security="none" pattern="/login.html"></security:http>
+    <!--系统中要有:认证和授权两个功能
+         springsecurity具备认证和授权的功能
+    -->
+    <!--授权:给登录的用户分配权限
+      auto-config="true" 如果权限不通过(访问受限) 默认提供登录的页面等配置
+      use-expressions="true" 使用表达式的方式控制权限
+    -->
+    <security:http auto-config="true" use-expressions="true">
+        <!--授权的配置(表达式) intercept-url:拦截路径请求
+        pattern="/**" 项目中的所有资源
+        access="hasRole('ROLE_ADMIN'):访问必须具备ROLE_ADMIN角色
+        -->
+        <!--只对index.html页面进行限制,只要具备ADMIN角色才能访问,其它的资源就没有权限的限制了-->
+        <!-- <security:intercept-url pattern="/index.html" access="hasRole('ROLE_ADMIN')"></security:intercept-url>-->
+        <!--<security:intercept-url pattern="/**" access="hasRole('ROLE_ADMIN')"></security:intercept-url>-->
+
+        <!--配置具体页面的访问权限
+            hasAuthority 是否具备指定的权限
+            isAuthenticated 只要登录成功就可以访问指定的页面
+        -->
+                            <!-- pages下的页面,只要登陆成功就可以访问 -->
+        <security:intercept-url pattern="/pages/**" access="isAuthenticated()"></security:intercept-url>
+
+        <!--配置登录相关的信息
+           login-page="/login.html" 登录页面是login.html
+           login-processing-url="/login.do"  登录的处理器(控制器方法地址)(注意:和登录页面提交的action值一致)
+               username-parameter="username"
+               password-parameter="password"      获取用户名密码(等价于:request.getParameter(""))
+             default-target-url="/index.html" 登录成功默认跳转到index.html
+              authentication-failure-url="/login.html" 登录失败跳转的页面login.html
+              always-use-default-target="true" 以后只要登录成功默认使用default-target-url="/index.html"配置
+        -->
+        <security:form-login
+                login-page="/login.html"
+                login-processing-url="/login.do"
+                username-parameter="username"
+                password-parameter="password"
+                default-target-url="/pages/main.html"
+                authentication-failure-url="/login.html"
+                always-use-default-target="true"
+        />
+        <!--403 - Forbidden 访问受限(没有权限) 原因是：自己的登录页面没有csrf令牌，禁用csrf的后台验证-->
+        <security:csrf disabled="true"></security:csrf>
+
+        <!--退出-->
+        <security:logout logout-url="/logout.do" logout-success-url="/login.html" invalidate-session="false"></security:logout>
+
+        <security:headers>
+            <!--设置在页面可以通过iframe访问受保护的页面，默认为不允许访问-->
+            <security:frame-options policy="SAMEORIGIN"></security:frame-options>
+        </security:headers>
+
+        <security:access-denied-handler ref="customAccessDeniedHandler"/>
+
+    </security:http>
+
+
+
+    <!--authentication:认证 管理者-->
+    <security:authentication-manager>
+        <!--provider提供者：user-service-ref调用查询数据库的类,获取数据库的用户信息-->
+        <security:authentication-provider user-service-ref="myUserDetailsService" >
+            <!--指定bCryptPasswordEncoder加密器-->
+            <security:password-encoder ref="bCryptPasswordEncoder"></security:password-encoder>
+            <!--指定md5密码加密器-->
+            <!-- <security:password-encoder ref="myPasswordEncoder"></security:password-encoder>-->
+            <!-- &lt;!&ndash;用户信息&ndash;&gt;
+             <security:user-service>
+                 &lt;!&ndash;具体用户
+                     模拟数据的用户信息
+                     authorities:权限
+                        例如: authorities="a" 用户具备a的权限
+                              authorities="query" 用户具备查询的权限
+                     ROLE_ADMIN 角色 authorities=“ROLE_ADMIN”用户具备ADMIN的角色
+                        ROLE_:如果角色的前面加上了Role_表示角色
+                             比如: authorities="ROLE_query" 用户具备query的角色
+
+                 &ndash;&gt;
+                 <security:user name="admin" password="{noop}admin" authorities="ROLE_ADMIN"></security:user>
+             </security:user-service>-->
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+    <!--再spring容器中配置并管理bcrypt加密对象-->
+    <bean id="bCryptPasswordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"></bean>
+
+</beans>

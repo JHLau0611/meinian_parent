@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.dao.OrderDAO">
+
+<!--Integer getOrder(Order order);-->
+    <select id="getOrder" resultType="java.lang.Integer">
+        select count(1) from t_order where
+            orderDate = #{orderDate} and
+            setmeal_id = #{setmealId} and
+            member_id = #{memberId}
+    </select>
+
+<!-- void add(Order order); 添加新的订单-->
+    <insert id="add" useGeneratedKeys="true" keyProperty="id">
+        insert into t_order
+            (
+                member_id,
+                orderDate,
+                orderType,
+                orderStatus,
+                setmeal_id
+            )
+        values
+            (
+                #{memberId},
+                #{orderDate},
+                #{orderType},
+                #{orderStatus},
+                #{setmealId}
+            )
+
+    </insert>
+
+<!-- Map findById(); 预约成功页面显示-->
+    <select id="findById" resultType="map">
+        select t_member.name as member, t_setmeal.name as setmeal, t_order.orderDate, t_order.orderType
+            from t_member,t_order,t_setmeal
+            where t_member.id = t_order.member_id and
+                  t_setmeal.id = t_order.setmeal_id and
+                  t_order.id = #{orderId}
+
+    </select>
+    
+<!-- int getTodayOrderNumber(String today); 获取今日预约数-->
+    <select id="getTodayOrderNumber" resultType="java.lang.Integer">
+        select count(1) from t_order where orderDate = #{today}
+    </select>
+
+<!-- int getTodayVisitsNumber(String today); 获取今日出游数-->
+    <select id="getTodayVisitsNumber" resultType="java.lang.Integer">
+        select count(1) from t_order where orderDate = #{today} and orderStatus = '已出游'
+    </select>
+
+<!--     int getThisWeekAndMonthOrderNumber(Map<String, Object> paramWeek); 获取本周/月 预约数-->
+    <select id="getThisWeekAndMonthOrderNumber" resultType="java.lang.Integer">
+        select count(1) from t_order where orderDate between #{begin} and #{end}
+    </select>
+
+<!-- int getThisWeekAndMonthVisitsNumber(Map<String, Object> paramWeekVisit); 获取本周/月 出游数-->
+    <select id="getThisWeekAndMonthVisitsNumber" resultType="java.lang.Integer">
+        select count(1) from t_order where orderDate between #{begin} and #{end} and orderStatus = '已出游'
+    </select>
+
+<!-- List<Map<String, Object>> findHotSetmeal(); 热门套餐前三 名称 数量 占比-->
+    <select id="findHotSetmeal" resultType="map">
+        select t_setmeal.name name, count(t_setmeal.name) setmeal_count, count(t_setmeal.name)/(select count(1) from t_order) proportion
+        from t_order,t_setmeal
+        where t_setmeal.id = t_order.setmeal_id
+        group by t_setmeal.name
+        order by count(t_setmeal.name) desc
+        limit 3;
+    </select>
+
+
+
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
